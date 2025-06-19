@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ポータルサイト</title>
+<style>
+  body {
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 0 15px;
+    line-height: 1.6;
+    color: #333;
+    background: #f9f9f9;
+  }
+  h1 {
+    font-size: 1.8rem;
+    border-bottom: 3px solid #4a90e2;
+    padding-bottom: 10px;
+  }
+  h2 {
+    font-size: 1.3rem;
+    margin-top: 30px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 6px;
+    color: #4a90e2;
+  }
+  hr {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 25px 0;
+  }
+  ul {
+    list-style: none;
+    padding-left: 0;
+  }
+  ul li {
+    margin: 8px 0;
+  }
+  .footer-contact li {
+    margin: 6px 0;
+  }
+  .note {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 8px;
+    white-space: pre-wrap;
+  }
+</style>
+</head>
+<body>
+
+<h1>🏠 ポータルサイト【仮】</h1>
+<h2 style="font-size: 24px; font-weight: bold;">
+  本日の日付：<span id="today"></span>
+</h2>
+
+<script>
+  const today = new Date();
+  const daysOfWeek = ['日', '月', '火', '水', '木', '金', '土'];
+  const dayOfWeek = daysOfWeek[today.getDay()];
+  const formatted = today.toLocaleDateString('ja-JP', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  document.getElementById('today').textContent = `${formatted}（${dayOfWeek}）`;
+</script>
+
+<section>
+  <h2>👤 人員配置状況（ラベラー 42名）</h2>
+  <ul>
+    <li>稼働：<span id="workingCount">--</span> 名</li>
+    <li>欠勤：<span id="absentCount">--</span> 名</li>
+    <li>日別出勤率：<span id="dailyAttendance">--</span> </li>
+    <li>月別出勤率：<span id="monthlyAttendance">--</span> </li>
+  </ul>
+</section>
+
+<script>
+  const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQYFcdSwZguznyJDC8liDxkET7KbQ8MGPVsY7m_KU_wHiGu_trkuBywT5bUtB2kiZOIRZjd6Vc8g_Yh/pub?output=csv&gid=0';
+
+  async function fetchAndUpdateData() {
+    try {
+      const res = await fetch(csvUrl);
+      if (!res.ok) throw new Error('スプレッドシートCSV取得失敗');
+      const csvText = await res.text();
+
+      const lines = csvText.trim().split('\n');
+      const headers = lines[0].split(',').map(h => h.trim());
+
+      const todayStr = new Date().toLocaleDateString('ja-JP', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).replace(/\//g, '-');
+
+      const matchedLine = lines.slice(1).find(line => {
+        const cols = line.split(',');
+        return cols[0] === todayStr;
+      });
+
+      if (!matchedLine) {
+        console.warn("本日の日付に一致するデータが見つかりません");
+        return;
+      }
+
+      const data = matchedLine.split(',');
+
+      const workingIdx = headers.indexOf('稼働');
+      const absentIdx = headers.indexOf('欠勤');
+      const dailyIdx = headers.indexOf('日別出勤率');
+      const monthlyIdx = headers.indexOf('月別出勤率');
+
+      if (workingIdx >= 0) document.getElementById('workingCount').textContent = data[workingIdx];
+      if (absentIdx >= 0) document.getElementById('absentCount').textContent = data[absentIdx];
+      if (dailyIdx >= 0) document.getElementById('dailyAttendance').textContent = data[dailyIdx];
+      if (monthlyIdx >= 0) document.getElementById('monthlyAttendance').textContent = data[monthlyIdx];
+
+    } catch (e) {
+      console.error(e);
+    }
+  }
+  fetchAndUpdateData();
+</script>
+
+<hr>
+
+<section>
+  <h2>🎯 業務目標（KPI）</h2>
+  <ul>
+    <li><strong>Live Queue ID：</strong>7501954626661499393</li>
+    <li><strong>目標件数：</strong>140件（午前70件/午後70件）</li>
+    <li><strong>目標AHT：</strong>150秒</li>
+    <li><strong>正確率：</strong>90%以上</li>
+  </ul>
+  <p class="note">
+    一日の処理上限は160件ほどで、<span style="color: red; font-weight: bold;">必ず140件は超えるよう</span>皆さん調整をお願いします。
+    <span style="color: red; font-weight: bold;">※AHTの許容範囲につきましては、前後30秒ほどを基準に</span>処理していただけると助かります。
+  </p>
+</section>
+
+<hr>
+
+<section>
+  <h2>📚 業務関連マニュアル・資料</h2>
+  <ul>
+    <li>🔗 <a href="https://bytedance.sg.larkoffice.com/docx/Wxm2dWb9uol3INxmMR6lThX3gmd" target="_blank">SOP 日本語版ポリシー</a></li>
+    <li>🔗 <a href="https://xs740ans7w.larksuite.com/sheets/JgLCszyjYh42PTt2xN5u3gUPsgc" target="_blank">谷口さん作成ポリシー</a></li>
+    <li>🔗 <a href="https://bytedance.sg.larkoffice.com/sheets/Xkl0s2Y04hiuazttQaLl8uQxgUg?sheet=X6bYdt" target="_blank">アリアナさん共有シート</a></li>
+  </ul>
+</section>
+
+<hr>
+
+<section>
+  <h2>⚙️ 運用関連リンク</h2>
+  <ul>
+    <li>📝 <a href="#" target="_blank">UPCチャット運用周知</a></li>
+    <li>📝 <a href="#" target="_blank">事前休申請フォーム</a></li>
+    <li>📝 <a href="#" target="_blank">4F運用周知</a></li>
+  </ul>
+</section>
+
+<hr>
+
+<section>
+  <h2>📞 ランスタッド お問い合わせ先</h2>
+  <ul class="footer-contact">
+    <li>小川さん　090-3229-7384</li>
+    <li>井口さん　080-2550-4483</li>
+    <li>ランスタッド札幌支店</li>
+    <li>勤務先の電話番号：0120-222-169</li>
+    <li>※フリーダイヤルNG時：050-1745-8057</li>
+  </ul>
+</section>
+
+</body>
+</html>
