@@ -94,7 +94,7 @@
         year: 'numeric',
         month: '2-digit',
         day: '2-digit'
-      }).replace(/\//g, '-');
+      }); // 例: "2025/06/20"
 
       const matchedLine = lines.slice(1).find(line => {
         const cols = line.split(',');
